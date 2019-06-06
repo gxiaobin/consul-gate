@@ -1,0 +1,49 @@
+##scb-gate##
+server:
+  port: 8800
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      #健康检查
+      discovery:
+        healthCheckPath: /health
+        healthCheckInterval: 15s
+        instance-id: id-consul-gate
+  application:
+    name: consul-gate
+  zipkin: 
+    base-url: http://localhost:9411/
+  session:
+    store-type: none
+    #使用redis的配置信息
+  redis:
+    password: 123456
+    timeout: 10000
+    host: 127.0.0.1         # Redis服务器地址
+    port: 6379               # Redis服务器连接端口
+
+##打开断路器 #
+feign: 
+   hystrix: 
+      enabled: true   
+##zuul  route## 
+zuul:
+  #zuul 设置允许跨域
+  sensitiveHeaders: Cookie,Set-Cookie #设置过滤cookie 不会将cookie传递给下游
+  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin, Access-Control-Allow-Methods
+  ribbonIsolationStrategy: THREAD     #设置Hystrix隔离策略为线程池
+  threadPool: 
+    useSeparateThreadPools: true      #每个路由使用独立的线程池
+  routes:
+    #服务名称 ： 接口请求前缀
+     scb-pc: /scbpc/**
+     scb-wap: /scbwap/**
+
+accessfilter:
+  #配置不需要拦截的路径信息已逗号分隔
+  scbpc: /sysAdmin/login,/sysAdmin/islogin
+  #配置需要拦截的路径
+  scbwap: /collect,/personal/getMemberPersonal,/personal/modifyMemberSelf,/personal/getMemberByToken,/personal/logout,
+
